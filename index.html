@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solar KSA — rooftop solar sizing and payback for Saudi homes</title>
+  <meta name="description" content="Pick a Saudi city, enter your roof area and electricity bill, and get system size, production, cost, savings, payback and CO2 avoided. Uses live NASA POWER data and sourced Saudi tariffs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-in">
+      <div>
+        <h1 data-i18n="title">Solar KSA</h1>
+        <p data-i18n="tagline"></p>
+      </div>
+      <button type="button" id="langBtn" class="lang" data-i18n="langBtn">العربية</button>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <form id="form" class="panel" autocomplete="off" onsubmit="return false">
+      <fieldset>
+        <legend data-i18n="s_location"></legend>
+        <label for="city" data-i18n="city"></label>
+        <select id="city"></select>
+        <div id="customBox" class="two" hidden>
+          <div><label for="lat" data-i18n="lat"></label><input id="lat" type="number" step="0.01" min="15" max="33" value="24.71" inputmode="decimal"></div>
+          <div><label for="lon" data-i18n="lon"></label><input id="lon" type="number" step="0.01" min="34" max="56" value="46.68" inputmode="decimal"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend data-i18n="s_roof"></legend>
+        <div class="two">
+          <div><label for="roofArea" data-i18n="roofArea"></label><input id="roofArea" type="number" min="5" max="5000" step="5" value="200" inputmode="decimal"></div>
+          <div><label for="usable" data-i18n="usable"></label><input id="usable" type="number" min="5" max="100" step="5" value="50" inputmode="decimal"></div>
+        </div>
+        <label for="facing" data-i18n="facing"></label>
+        <select id="facing">
+          <option value="0" data-i18n="f_s"></option>
+          <option value="-45" data-i18n="f_se"></option>
+          <option value="45" data-i18n="f_sw"></option>
+          <option value="-90" data-i18n="f_e"></option>
+          <option value="90" data-i18n="f_w"></option>
+        </select>
+        <label class="check"><input id="autoTilt" type="checkbox" checked> <span data-i18n="autoTilt"></span></label>
+        <div id="tiltBox" hidden><label for="tilt" data-i18n="tilt"></label><input id="tilt" type="number" min="0" max="45" step="1" value="22" inputmode="numeric"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend data-i18n="s_use"></legend>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="unit" value="bill" checked> <span data-i18n="unitBill"></span></label>
+          <label><input type="radio" name="unit" value="kwh"> <span data-i18n="unitKwh"></span></label>
+        </div>
+        <label for="pattern" data-i18n="pattern"></label>
+        <select id="pattern">
+          <option value="seasonal" data-i18n="p_seasonal"></option>
+          <option value="flat" data-i18n="p_flat"></option>
+          <option value="monthly" data-i18n="p_monthly"></option>
+        </select>
+        <div id="avgBox"><label for="usage" id="usageLabel"></label><input id="usage" type="number" min="0" step="10" value="600" inputmode="decimal"></div>
+        <div id="monthlyBox" hidden>
+          <p class="lab" id="monthlyLabel"></p>
+          <div class="months" id="monthInputs"></div>
+        </div>
+        <label for="dayShare" data-i18n="dayShare"></label>
+        <input id="dayShare" type="number" min="0" max="100" step="5" value="50" inputmode="numeric" aria-describedby="dayHelp">
+        <p class="help" id="dayHelp" data-i18n="dayShareHelp"></p>
+        <label for="tariff" data-i18n="tariff"></label>
+        <select id="tariff">
+          <option value="y2027" data-i18n="t27"></option>
+          <option value="y2026" data-i18n="t26"></option>
+        </select>
+        <label for="fee" data-i18n="fee"></label>
+        <input id="fee" type="number" min="0" max="1000" step="5" value="70" inputmode="decimal" aria-describedby="feeHelp">
+        <p class="help" id="feeHelp" data-i18n="feeHelp"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend data-i18n="s_adv"></legend>
+        <div class="two">
+          <div><label for="cost" data-i18n="cost"></label><input id="cost" type="number" min="1000" max="10000" step="100" value="3500" inputmode="numeric"></div>
+          <div><label for="om" data-i18n="om"></label><input id="om" type="number" min="0" max="5" step="0.5" value="1" inputmode="decimal"></div>
+          <div><label for="soiling" data-i18n="soiling"></label><input id="soiling" type="number" min="0" max="40" step="1" value="5" inputmode="decimal"></div>
+          <div><label for="shading" data-i18n="shading"></label><input id="shading" type="number" min="0" max="40" step="1" value="3" inputmode="decimal"></div>
+        </div>
+        <label class="check"><input id="autoSize" type="checkbox" checked> <span data-i18n="autoSize"></span></label>
+        <div id="sizeBox" hidden>
+          <label for="panels"><span data-i18n="panels"></span>: <output id="panelsOut"></output></label>
+          <input id="panels" type="range" min="1" max="10" step="1" value="1">
+        </div>
+      </fieldset>
+    </form>
+
+    <section class="results" aria-live="polite">
+      <p id="status" class="status"></p>
+      <div id="error" class="error" hidden>
+        <p id="errorText"></p>
+        <button type="button" id="retry" data-i18n="retry"></button>
+      </div>
+
+      <div id="out" hidden>
+        <p id="summary" class="summary"></p>
+        <ul id="notes" class="notes"></ul>
+
+        <div class="groups">
+          <section><h2 data-i18n="g_system"></h2><dl id="gSystem"></dl></section>
+          <section><h2 data-i18n="g_energy"></h2><dl id="gEnergy"></dl></section>
+          <section><h2 data-i18n="g_money"></h2><dl id="gMoney"></dl></section>
+        </div>
+
+        <section class="block">
+          <h2 data-i18n="c_month"></h2>
+          <p class="cap" data-i18n="c_monthCap"></p>
+          <div class="legend"><span><i class="sw sun"></i><span data-i18n="l_prod"></span></span><span><i class="sw use"></i><span data-i18n="l_use"></span></span></div>
+          <div class="chart" id="chartMonth" dir="ltr"></div>
+          <details><summary data-i18n="tableBtn"></summary><div class="scroll"><table id="monthTable"></table></div></details>
+        </section>
+
+        <section class="block">
+          <h2 data-i18n="c_cash"></h2>
+          <p class="cap" data-i18n="c_cashCap"></p>
+          <div class="chart" id="chartCash" dir="ltr"></div>
+        </section>
+
+        <section class="block">
+          <h2 data-i18n="c_loss"></h2>
+          <p class="cap" id="lossCap"></p>
+          <div id="lossBars" class="loss"></div>
+        </section>
+      </div>
+
+      <section class="block">
+        <h2 data-i18n="s_assume"></h2>
+        <p class="cap" data-i18n="assumeIntro"></p>
+        <div class="scroll"><table id="assumeTable"></table></div>
+      </section>
+
+      <section class="block">
+        <h2 data-i18n="s_method"></h2>
+        <ol class="method">
+          <li data-i18n="meth1"></li><li data-i18n="meth2"></li><li data-i18n="meth3"></li><li data-i18n="meth4"></li>
+          <li data-i18n="meth5"></li><li data-i18n="meth6"></li><li data-i18n="meth7"></li><li data-i18n="meth8"></li>
+        </ol>
+        <button type="button" id="download" class="quiet" data-i18n="download"></button>
+      </section>
+
+      <footer><p data-i18n="footer"></p></footer>
+    </section>
+  </main>
+
+  <div id="tip" class="tip" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="i18n.js"></script>
+  <script src="calc.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
